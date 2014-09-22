@@ -1,0 +1,59 @@
+Gameport.sys is a small driver that samples the game port about
+10 times per second.  It also checks and debounces the switches.
+
+To install Gameport.sys, just put a line in your config.sys as follows:
+
+DEVICE=C:\OS2\GAMEPORT.SYS
+
+and copy gameport.sys to the OS2 subdirectory.
+
+
+To use it, just have your application open device GAME$ and issue
+DevIOCtl calls using the file handle.
+
+To Read the Joystick Status Issue A DevIOCtl call as Follows:
+
+DosDevIOCtl(&stJoyStatus, NULL, 0x20, 0x80, shGameHandle);
+
+Where shGameHandle is the handle returned from the open
+and stJoyStatus is the status structure to be returned.
+
+struct joystatus {
+	SHORT   sJs_AxCnt;		// A Joystick X position
+	SHORT   sJs_AyCnt;		// A Joystick Y position
+	SHORT   sJs_BxCnt;		// B Joystick X position
+	SHORT   sJs_ByCnt;		// B Joystick Y position
+	USHORT usJs_ButtonA1Cnt;	// Button A1 Press Count 
+	USHORT usJs_ButtonA2Cnt;	// Button A2 Press Count
+	USHORT usJs_ButtonB1Cnt;	// Button B1 Press Count
+	USHORT usJs_ButtonB2Cnt;	// Button B2 Press Count
+	UCHAR ucJs_JoyStickMask;	// Mask of Connected Joystick Pots
+	UCHAR ucJs_ButtonStatus;	// Bits of Switches Down
+	LONG   lJs_Ticks;		// Total Clock Ticks (60 Hz)
+} stJoyStatus;
+
+To save time (with interrupts turned off), the driver only samples pots
+that are connected.  To get the driver to start sampling a channel again,
+you can issue a DosDevIOCtl call passing it a mask with the bits set for the
+channels you wish to resume sampling.
+
+	UCHAR ucNewMask;
+
+	ucNewMask = 0x01	// resume sampling Joystick A, Horz
+
+	DevIOCtl(NULL, &ucNewMask, 0x60, 0x80, shGameHandle);
+
+Have fun and enjoy
+
+Frank Ivan
+ICA Systems Group
+1949 Weybridge Lane
+Reston Va. 22091
+
+(703) 620-5835
+
+[75300,1406]
+
+
+
+

@@ -1,0 +1,3 @@
+gameport.sys: gameport.asm
+	masm gameport.asm;
+	link @gameport.lnk
